@@ -13,18 +13,30 @@ public class SpawnManager : MonoBehaviour
     private Transform _enemyParent;
 
     [SerializeField]
-    private float _spawnInterval = 5;
+    private float _enemySpawnInterval = 5f;
+
+    [SerializeField]
+    private GameObject[] _upgradePickups;
+
+    [SerializeField]
+    private float _upgradeSpawnIntervalMin, _upgradeSpawnIntervalMax;
 
     private bool _canSpawn = true;
 
     private void Start()
     {
         StartCoroutine(ContinuouslySpawnEnemies());
+        StartCoroutine(ContinuouslySpawnUpgrades());
     }
 
     void SpawnEnemy()
     {
-        Instantiate(_enemy, new Vector3(Random.Range(_leftLimit, _rightLimit), _spawnHeight, 0), Quaternion.identity, _enemyParent);
+        Instantiate(_enemy, new Vector3(Random.Range(_leftLimit, _rightLimit), _spawnHeight, 0f), Quaternion.identity, _enemyParent);
+    }
+
+    void SpawnUpgrade()
+    {
+        Instantiate(_upgradePickups[Random.Range(0, _upgradePickups.Length)], new Vector3(Random.Range(_leftLimit, _rightLimit), _spawnHeight, 0f), Quaternion.identity);
     }
 
     IEnumerator ContinuouslySpawnEnemies()
@@ -33,7 +45,19 @@ public class SpawnManager : MonoBehaviour
         {
             SpawnEnemy();
 
-            yield return new WaitForSeconds(_spawnInterval);
+            yield return new WaitForSeconds(_enemySpawnInterval);
+        }
+    }
+
+    IEnumerator ContinuouslySpawnUpgrades()
+    {
+        yield return new WaitForSeconds(Random.Range(_upgradeSpawnIntervalMin, _upgradeSpawnIntervalMax));
+
+        while (_canSpawn)
+        {
+            SpawnUpgrade();
+
+            yield return new WaitForSeconds(Random.Range(_upgradeSpawnIntervalMin, _upgradeSpawnIntervalMax));
         }
     }
 

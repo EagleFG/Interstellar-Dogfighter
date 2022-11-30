@@ -10,7 +10,7 @@ public class LaserBehavior : MonoBehaviour
 
     void Update()
     {
-        transform.Translate(new Vector3(0, 1, 0) * _speed * Time.deltaTime);
+        transform.Translate(new Vector3(0f, 1f, 0f) * _speed * Time.deltaTime);
 
         if (gameObject.transform.position.y > _upperBoundary)
         {
