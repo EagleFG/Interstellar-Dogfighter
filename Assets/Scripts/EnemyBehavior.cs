@@ -41,7 +41,7 @@ public class EnemyBehavior : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Laser"))
+        if (other.gameObject.CompareTag("Laser") || other.gameObject.CompareTag("Missile"))
         {
             if (GameObject.FindGameObjectWithTag("Player").TryGetComponent(out PlayerController player))
             {
@@ -68,7 +68,7 @@ public class EnemyBehavior : MonoBehaviour
     {
         _collider.enabled = false;
         _canWrapScreen = false;
-        //StartCoroutine(ContinuouslyReduceSpeed());
+        StartCoroutine(ContinuouslyReduceSpeed());
         _explosion.SetActive(true);
     }
 

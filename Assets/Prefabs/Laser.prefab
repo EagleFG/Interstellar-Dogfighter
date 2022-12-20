@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 20
-  _upperBoundary: 8
+  _upperBoundary: 7
 --- !u!212 &6900683914652470662
 SpriteRenderer:
   m_ObjectHideFlags: 0

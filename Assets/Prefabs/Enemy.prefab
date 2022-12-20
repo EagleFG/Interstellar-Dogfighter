@@ -48,8 +48,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 6
-  _lowerLimit: -6
-  _yRespawnPosition: 8
+  _lowerLimit: -7
+  _yRespawnPosition: 7
   _xRespawnMin: -9
   _xRespawnMax: 9
   _collider: {fileID: 2974690112162114283}

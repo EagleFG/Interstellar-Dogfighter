@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 3
-  _lowerLimit: -6
+  _lowerLimit: -7
   _upgradeType: 1
   _upgradeAudio: {fileID: 8300000, guid: d08c19db2df502947acd1a3b90535e1a, type: 3}
   _audioVolume: 1

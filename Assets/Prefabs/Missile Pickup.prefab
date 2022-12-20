@@ -12,9 +12,8 @@ GameObject:
   - component: {fileID: 431687556941087086}
   - component: {fileID: 431687556941087084}
   - component: {fileID: 431687556941086995}
-  - component: {fileID: 1133688333030661292}
   m_Layer: 0
-  m_Name: Triple Shot Pickup
+  m_Name: Missile Pickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: -573118123
   m_SortingLayer: 2
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: ed6681d697652144a913093bf7ad1d43, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ed1d94846bae9e94fac3b0cc600aca5b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -101,7 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _speed: 3
   _lowerLimit: -7
-  _upgradeType: 0
+  _upgradeType: 5
   _upgradeAudio: {fileID: 8300000, guid: d08c19db2df502947acd1a3b90535e1a, type: 3}
   _audioVolume: 1
 --- !u!61 &431687556941086995
@@ -117,36 +116,16 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.5}
+  m_Offset: {x: -0.007918119, y: -0.058226347}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 5.12, y: 5.12}
+    oldSize: {x: 2.56, y: 2.56}
     newSize: {x: 5.12, y: 5.12}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.5, y: 3.1}
+  m_Size: {x: 2.2941298, y: 2.0944026}
   m_EdgeRadius: 0
---- !u!95 &1133688333030661292
-Animator:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 431687556941087087}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 8db9e7a165869224b9901b644c80d91c, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
