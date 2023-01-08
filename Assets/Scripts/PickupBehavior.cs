@@ -8,7 +8,7 @@ public class PickupBehavior : MonoBehaviour
     [SerializeField]
     private float _lowerLimit;
 
-    private enum UpgradeType { TripleShot, SpeedUp, Shield, Ammo, Health, Missile };
+    private enum UpgradeType { TripleShot, SpeedUp, Shield, Ammo, Health, Missile, ShieldDisruption };
 
     [SerializeField]
     private UpgradeType _upgradeType;
@@ -54,6 +54,9 @@ public class PickupBehavior : MonoBehaviour
                         break;
                     case UpgradeType.Missile:
                         player.EnableMissile();
+                        break;
+                    case UpgradeType.ShieldDisruption:
+                        player.DisruptShield();
                         break;
                 }
 

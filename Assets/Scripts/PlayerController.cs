@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 public class PlayerController : MonoBehaviour
 {
@@ -61,7 +62,18 @@ public class PlayerController : MonoBehaviour
     private float _cameraShakeDuration = 1f;
 
     [SerializeField]
+    private PostProcessVolume _postProcessing;
+
+    [SerializeField]
     private int _shieldHealth = 0;
+
+    [SerializeField]
+    private Color _shieldColor, _shieldDisruptionColor;
+
+    [SerializeField]
+    private float _shieldDisruptionDuration = 3f;
+
+    private bool _isShieldDisrupted = false;
 
     private float _fuelRemaining = 100f;
 
@@ -132,7 +144,7 @@ public class PlayerController : MonoBehaviour
         _uiManager.UpdateFuelSlider(_fuelRemaining);
 
         _ammoCount = _maxAmmoCount;
-        _uiManager.UpdateAmmoCountUI(_ammoCount);
+        _uiManager.UpdateAmmoCountUI(_ammoCount, _maxAmmoCount);
 
         _firingDelay = _laserFiringDelay;
     }
@@ -239,7 +251,7 @@ public class PlayerController : MonoBehaviour
         }
 
         _ammoCount -= 1;
-        _uiManager.UpdateAmmoCountUI(_ammoCount);
+        _uiManager.UpdateAmmoCountUI(_ammoCount, _maxAmmoCount);
 
         _previousFire = Time.time;
     }
@@ -247,7 +259,7 @@ public class PlayerController : MonoBehaviour
     public void RefillAmmo()
     {
         _ammoCount = _maxAmmoCount;
-        _uiManager.UpdateAmmoCountUI(_ammoCount);
+        _uiManager.UpdateAmmoCountUI(_ammoCount, _maxAmmoCount);
     }
 
     public void UpdateScore(int scoreIncrement)
@@ -265,16 +277,18 @@ public class PlayerController : MonoBehaviour
         {
             _leftDamageTrail.SetActive(false);
             _rightDamageTrail.SetActive(false);
+            _postProcessing.weight = 0;
         }
         else if (_playerHealth == 2)
         {
             _rightDamageTrail.SetActive(false);
+            _postProcessing.weight = .33f;
         }
     }
 
     public void DamagePlayer(int damage)
     {
-        if (_shieldHealth > 0)
+        if (_shieldHealth > 0 && _isShieldDisrupted == false)
         {
             UpdateShieldHealth(-damage);
         }
@@ -286,14 +300,17 @@ public class PlayerController : MonoBehaviour
             if (_playerHealth == 2)
             {
                 _leftDamageTrail.SetActive(true);
+                _postProcessing.weight = .33f;
             }
             else if (_playerHealth == 1)
             {
                 _leftDamageTrail.SetActive(true);
                 _rightDamageTrail.SetActive(true);
+                _postProcessing.weight = .66f;
             }
             if (_playerHealth <= 0)
             {
+                _postProcessing.weight = 1f;
                 TriggerGameOver();
             }
         }
@@ -346,6 +363,24 @@ public class PlayerController : MonoBehaviour
         _uiManager.UpdateShieldsUI(_shieldHealth);
     }
 
+    public void DisruptShield()
+    {
+        StartCoroutine(TemporarilyDisruptShield());
+    }
+
+    IEnumerator TemporarilyDisruptShield()
+    {
+        _isShieldDisrupted = true;
+        _shield.gameObject.SetActive(false);
+        _uiManager.UpdateShieldsColorUI(_shieldDisruptionColor);
+
+        yield return new WaitForSeconds(_shieldDisruptionDuration);
+
+        _isShieldDisrupted = false;
+        UpdateShieldHealth(0);
+        _uiManager.UpdateShieldsColorUI(_shieldColor);
+    }
+
     IEnumerator ContinuouslyRechargeFuel(float fuelRechargeDelay)
     {
         yield return new WaitForSeconds(fuelRechargeDelay);
@@ -360,7 +395,7 @@ public class PlayerController : MonoBehaviour
 
     public void TriggerGameOver()
     {
-        _gameManager.SetGameOver(true);
+        _gameManager.SetGameOverState(true);
         _canAct = false;
         _collider.enabled = false;
         _disableOnDeathObject.SetActive(false);

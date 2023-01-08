@@ -14,7 +14,7 @@ public class UIManager : MonoBehaviour
     private Sprite[] _livesUISprites;
 
     [SerializeField]
-    private GameObject[] _shieldUISprites;
+    private Image[] _shieldUISprites;
 
     [SerializeField]
     private Slider _fuelSlider;
@@ -23,11 +23,14 @@ public class UIManager : MonoBehaviour
     private TextMeshProUGUI _ammoCountUI;
 
     [SerializeField]
+    private TextMeshProUGUI _waveCounter;
+
+    [SerializeField]
     private GameObject _gameOverText;
 
     private void Start()
     {
-        Application.targetFrameRate = 60;
+        _waveCounter.text = "Wave: 00";
     }
 
     public void UpdateScoreUI(int score)
@@ -46,12 +49,20 @@ public class UIManager : MonoBehaviour
         {
             if (i < shieldHealth)
             {
-                _shieldUISprites[i].SetActive(true);
+                _shieldUISprites[i].gameObject.SetActive(true);
             }
             else
             {
-                _shieldUISprites[i].SetActive(false);
+                _shieldUISprites[i].gameObject.SetActive(false);
             }
+        }
+    }
+
+    public void UpdateShieldsColorUI(Color newColor)
+    {
+        for (int i = 0, l = _shieldUISprites.Length; i < l; i++)
+        {
+            _shieldUISprites[i].color = newColor;
         }
     }
 
@@ -60,9 +71,14 @@ public class UIManager : MonoBehaviour
         _fuelSlider.value = fuelRemaining;
     }
 
-    public void UpdateAmmoCountUI(int ammoCount)
+    public void UpdateAmmoCountUI(int ammoCount, int maxAmmo)
     {
-        _ammoCountUI.text = "Ammo: " + ammoCount.ToString();
+        _ammoCountUI.text = ammoCount.ToString("D2") + "/" + maxAmmo.ToString();
+    }
+
+    public void UpdateWaveCounterUI(int waveNumber)
+    {
+        _waveCounter.text = "Wave: " + waveNumber.ToString("D2");
     }
 
     public void EnableGameOverUI()

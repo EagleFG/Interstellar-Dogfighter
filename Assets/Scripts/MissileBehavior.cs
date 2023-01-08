@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class MissileBehavior : MonoBehaviour
@@ -29,7 +28,6 @@ public class MissileBehavior : MonoBehaviour
     private Transform _target = null;
 
     private bool _seeking = true;
-    private bool _searchingForTarget = false;
 
     private void Start()
     {
@@ -37,11 +35,13 @@ public class MissileBehavior : MonoBehaviour
         _enemyList = GameObject.Find("Enemy List").transform;
     }
 
-    void Update()
+    private void Update()
     {
         if (_seeking)
         {
             transform.Translate(new Vector3(0, _speed * Time.deltaTime, 0), Space.Self);
+
+            FindTarget();
 
             if (_target != null)
             {
@@ -50,10 +50,6 @@ public class MissileBehavior : MonoBehaviour
 
                 Vector3 targetRotation = new Vector3(0, 0, angleDifference);
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(targetRotation), _rotationSpeed * Time.deltaTime);
-            }
-            else if (_searchingForTarget == false)
-            {
-                StartCoroutine(ContinuouslyFindTarget());
             }
 
             if (Time.time > _spawnTime + _duration)
@@ -67,25 +63,13 @@ public class MissileBehavior : MonoBehaviour
     {
         if (_enemyList.childCount == 0)
         {
+            _target = null;
             return;
         }
         else
         {
             _target = _enemyList.GetChild(0);
         }
-    }
-
-    IEnumerator ContinuouslyFindTarget()
-    {
-        _searchingForTarget = true;
-
-        while (_target == null)
-        {
-            FindTarget();
-            yield return null;
-        }
-
-        _searchingForTarget = false;
     }
 
     void DestroyThisMissile()

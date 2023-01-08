@@ -3,11 +3,13 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    private int _currentWave = 0;
+
     private bool _isGameOver = false;
 
-    public void SetGameOver(bool newGameOverState)
+    private void Start()
     {
-        _isGameOver = newGameOverState;
+        Application.targetFrameRate = 60;
     }
 
     private void Update()
@@ -16,5 +18,25 @@ public class GameManager : MonoBehaviour
         {
             SceneManager.LoadScene(1);
         }
+    }
+
+    public void IncreaseCurrentWaveNumber()
+    {
+        _currentWave++;
+    }
+
+    public int GetCurrentWaveNumber()
+    {
+        return _currentWave;
+    }
+
+    public bool GetGameOverState()
+    {
+        return _isGameOver;
+    }
+
+    public void SetGameOverState(bool newGameOverState)
+    {
+        _isGameOver = newGameOverState;
     }
 }
