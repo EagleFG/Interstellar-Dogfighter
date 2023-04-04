@@ -4,22 +4,31 @@ using UnityEngine;
 public class EnemyBehavior : MonoBehaviour
 {
     [SerializeField]
-    private float _speed = 5f;
+    protected float _speed = 5f;
 
     [SerializeField]
-    private float _lowerLimit, _yRespawnPosition, _xRespawnMin, _xRespawnMax;
+    protected float _lowerLimit, _yRespawnPosition, _xRespawnMin, _xRespawnMax;
 
     [SerializeField]
     private float _maxSwayDistance, _maxSwaySpeed;
 
-    private float _swayDistance, _swaySpeed;
+    protected float _swayDistance, _swaySpeed;
 
-    private float _startingXCoord;
+    protected float _startingXCoord;
 
     [SerializeField]
-    private Collider2D _collider;
+    private Collider2D[] _colliders;
 
-    private bool _isAlive = true;
+    [SerializeField]
+    private GameObject _shield;
+
+    [SerializeField]
+    private AudioSource _shieldDownAudio;
+
+    [SerializeField]
+    private float _chanceToBeShielded = .15f;
+
+    protected bool _isAlive = true;
 
     [SerializeField]
     private GameObject _explosion;
@@ -27,31 +36,40 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField]
     private float _slowdownDuration = 2;
 
-    private bool _canWrapScreen = true;
+    protected bool _canWrapScreen = true;
 
-    private float _lerpTimeElapsed = 0;
+    private float _previousDeltaTime = .016f;
+    protected float _lerpTimeElapsed = 0;
 
     private Vector3 _previousPositionOneFrame;
     private Vector3 _previousPositionTwoFrames;
 
-    private void Start()
+    protected virtual void Start()
     {
         RespawnEnemy();
+
+        if (Random.Range(0f, 1f) <= _chanceToBeShielded)
+        {
+            _shield.SetActive(true);
+        }
+        else
+        {
+            _shield.SetActive(false);
+        }
 
         UpdatePreviousPositions(true);
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         CalculateMovement();
     }
 
     private void LateUpdate()
     {
-        if (_isAlive)
-        {
-            UpdatePreviousPositions(false);
-        }
+        UpdatePreviousPositions(false);
+
+        _previousDeltaTime = Time.deltaTime;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -64,7 +82,16 @@ public class EnemyBehavior : MonoBehaviour
             }
 
             Destroy(other.gameObject);
-            DestroyThisEnemy();
+
+            if (_shield.activeSelf == true)
+            {
+                _shield.SetActive(false);
+                _shieldDownAudio.Play();
+            }
+            else
+            {
+                DestroyThisEnemy();
+            }
         }
         else if (other.gameObject.CompareTag("Player"))
         {
@@ -75,7 +102,15 @@ public class EnemyBehavior : MonoBehaviour
                 playerController.DamagePlayer(1);
             }
 
-            DestroyThisEnemy();
+            if (_shield.activeSelf == true)
+            {
+                _shield.SetActive(false);
+                _shieldDownAudio.Play();
+            }
+            else
+            {
+                DestroyThisEnemy();
+            }
         }
     }
 
@@ -93,7 +128,7 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
-    void CalculateMovement()
+    protected virtual void CalculateMovement()
     {
         if (_isAlive)
         {
@@ -108,7 +143,7 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
-    void RespawnEnemy()
+    protected void RespawnEnemy()
     {
         SetSwayLimits();
 
@@ -131,36 +166,45 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
-    private void DestroyThisEnemy()
+    protected virtual void DestroyThisEnemy()
     {
         transform.parent = GameObject.Find("Destroyed Enemy List").transform;
-        _collider.enabled = false;
+
+        for (int i = 0, l = _colliders.Length; i < l; i++)
+        {
+            _colliders[i].enabled = false;
+        }
+
         _canWrapScreen = false;
-        StartCoroutine(ContinuouslyReduceSpeed());
         _isAlive = false;
+        StartCoroutine(ContinuouslyReduceSpeedOnDeath());
         _explosion.SetActive(true);
     }
 
-    private IEnumerator ContinuouslyReduceSpeed()
+    private IEnumerator ContinuouslyReduceSpeedOnDeath()
     {
         Vector3 travelDirection = _previousPositionOneFrame - _previousPositionTwoFrames;
         float travelSpeed = travelDirection.magnitude / Time.deltaTime;
 
+        Debug.Log("Destroyed! " + gameObject.GetInstanceID() + "'s initial destruction speed: " + travelSpeed.ToString("F2"));
+
         while(true)
         {
-            ReduceSpeed(travelSpeed);
+            ReduceSpeed(travelSpeed, _slowdownDuration);
 
-            transform.Translate(travelDirection.normalized * _speed * Time.deltaTime);
+            transform.Translate(travelDirection.normalized * _speed * _previousDeltaTime);
+
+            Debug.Log(gameObject.GetInstanceID() + "'s speed: " + _speed.ToString("F2"));
 
             yield return null;
         }
     }
 
-    private void ReduceSpeed(float startingSpeed)
+    protected void ReduceSpeed(float startingSpeed, float slowdownDuration)
     {
-        if (_lerpTimeElapsed != 0)
+        if (_lerpTimeElapsed != 0 && slowdownDuration != 0)
         {
-            _speed = Mathf.Lerp(startingSpeed, 0, _lerpTimeElapsed / _slowdownDuration);
+            _speed = Mathf.Lerp(startingSpeed, 0, _lerpTimeElapsed / slowdownDuration);
         }
 
         _lerpTimeElapsed += Time.deltaTime;

@@ -73,6 +73,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float _shieldDisruptionDuration = 3f;
 
+    [SerializeField]
+    private AudioSource _shieldDownAudio;
+
     private bool _isShieldDisrupted = false;
 
     private float _fuelRemaining = 100f;
@@ -92,6 +95,18 @@ public class PlayerController : MonoBehaviour
     private int _maxAmmoCount = 15;
 
     private int _ammoCount;
+
+    [SerializeField]
+    private Transform _pickupParent;
+
+    [SerializeField]
+    private float _magnetizeCollectibleRadius, _magnetizeCollectibleSpeed;
+
+    [SerializeField]
+    private GameObject _magnetizeScanRangeIndicatorPrefab;
+
+    [SerializeField]
+    private LayerMask _collectiblesLayerMask;
 
     [SerializeField]
     private SpawnManager _spawnManager;
@@ -159,6 +174,8 @@ public class PlayerController : MonoBehaviour
             {
                 FireWeapon();
             }
+
+            CalculateMagnetization();
         }
     }
 
@@ -256,6 +273,75 @@ public class PlayerController : MonoBehaviour
         _previousFire = Time.time;
     }
 
+    void CalculateMagnetization()
+    {
+        Collider2D[] collectibleColliders = Physics2D.OverlapCircleAll(gameObject.transform.position, _magnetizeCollectibleRadius, _collectiblesLayerMask);
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            Instantiate(_magnetizeScanRangeIndicatorPrefab, gameObject.transform.position, Quaternion.identity, gameObject.transform);
+        }
+
+        if (Input.GetKey(KeyCode.C))
+        {
+            for (int i = 0, l = collectibleColliders.Length; i < l; i++)
+            {
+                if (collectibleColliders[i].TryGetComponent(out PickupBehavior pickupLogic))
+                {
+                    if (pickupLogic.IsMagnetized() == false)
+                    {
+                        pickupLogic.Magnetize();
+                    }
+                }
+
+                collectibleColliders[i].transform.Translate((gameObject.transform.position - collectibleColliders[i].transform.position).normalized * _magnetizeCollectibleSpeed * Time.deltaTime);
+            }
+        }
+
+        if (Input.GetKeyUp(KeyCode.C))
+        {
+            for (int i = 0, l = collectibleColliders.Length; i < l; i++)
+            {
+                if (collectibleColliders[i].gameObject.TryGetComponent(out PickupBehavior pickupLogic))
+                {
+                    pickupLogic.Demagnetize();
+                }
+            }
+        }
+
+        // demagnetize if pickup leaves magnetize radius while being magnetized
+        for (int i = 0, l =_pickupParent.childCount; i < l; i++)
+        {
+            if (DoesPickupExistInMagnetizeRadius(_pickupParent.GetChild(i), collectibleColliders) == false && _pickupParent.GetChild(i).TryGetComponent(out PickupBehavior pickupLogic))
+            {
+                if (pickupLogic.IsMagnetized() == true)
+                {
+                    pickupLogic.Demagnetize();
+                }
+            }
+        }
+    }
+
+    bool DoesPickupExistInMagnetizeRadius(Transform pickup, Collider2D[] collidersInRadius)
+    {
+        for (int i = 0, l = collidersInRadius.Length; i < l; i++)
+        {
+            if (pickup.gameObject.GetInstanceID() == collidersInRadius[i].gameObject.GetInstanceID())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+
+        Gizmos.DrawWireSphere(gameObject.transform.position, _magnetizeCollectibleRadius);
+    }
+
     public void RefillAmmo()
     {
         _ammoCount = _maxAmmoCount;
@@ -291,6 +377,7 @@ public class PlayerController : MonoBehaviour
         if (_shieldHealth > 0 && _isShieldDisrupted == false)
         {
             UpdateShieldHealth(-damage);
+            _shieldDownAudio.Play();
         }
         else
         {

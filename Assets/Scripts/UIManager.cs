@@ -40,7 +40,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateLivesUI(int lives)
     {
-        _livesUI.sprite = _livesUISprites[lives];
+        _livesUI.sprite = _livesUISprites[Mathf.Clamp(lives, 0, 3)];
     }
 
     public void UpdateShieldsUI(int shieldHealth)
