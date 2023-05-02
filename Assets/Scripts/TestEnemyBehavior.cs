@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class EnemyBehavior : MonoBehaviour
+public class TestEnemyBehavior : MonoBehaviour
 {
     [SerializeField]
     protected float _speed = 5f;
@@ -127,7 +127,7 @@ public class EnemyBehavior : MonoBehaviour
         {
             transform.Translate(new Vector3(0f, -1f, 0f) * _speed * Time.deltaTime);
 
-            transform.position = new Vector3(Mathf.Sin(Time.time * _swaySpeed) * _swayDistance + _startingXCoord, transform.position.y, 0f);
+            //transform.position = new Vector3(Mathf.Sin(Time.time * _swaySpeed) * _swayDistance + _startingXCoord, transform.position.y, 0f);
 
             if (gameObject.transform.position.y < _lowerLimit && _canWrapScreen == true)
             {

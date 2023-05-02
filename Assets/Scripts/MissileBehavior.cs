@@ -64,12 +64,30 @@ public class MissileBehavior : MonoBehaviour
         if (_enemyList.childCount == 0)
         {
             _target = null;
-            return;
         }
         else
         {
-            _target = _enemyList.GetChild(0);
+            _target = FindClosestEnemy();
         }
+    }
+
+    Transform FindClosestEnemy()
+    {
+        float shortestDistance = float.PositiveInfinity;
+        int closestEnemy = 0;
+
+        for (int i = 0, l = _enemyList.childCount; i < l; i++)
+        {
+            float enemyDistance = Vector3.Distance(gameObject.transform.position, _enemyList.GetChild(i).position);
+
+            if (enemyDistance < shortestDistance)
+            {
+                shortestDistance = enemyDistance;
+                closestEnemy = i;
+            }
+        }
+
+        return _enemyList.GetChild(closestEnemy);
     }
 
     void DestroyThisMissile()

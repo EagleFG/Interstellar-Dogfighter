@@ -23,13 +23,13 @@ public class DodgeEnemyBehavior : EnemyBehavior
 
     private bool _isDodging = false;
 
-    private float _startingSpeed;
+    private float _defaultSpeed;
 
     protected override void Start()
     {
         base.Start();
 
-        _startingSpeed = _speed;
+        _defaultSpeed = _speed;
     }
 
     protected override void Update()
@@ -72,27 +72,23 @@ public class DodgeEnemyBehavior : EnemyBehavior
                         if (gameObject.transform.position.x + _dodgeDistance <= _xRespawnMax)
                         {
                             StartCoroutine(Dodge(Vector3.right));
-                            return;
                         }
                         else
                         {
                             StartCoroutine(Dodge(Vector3.left));
-                            return;
                         }
                     }
                     // if laser is right of center
-                    else if (scanHits[i].transform.position.x >= gameObject.transform.position.x)
+                    else
                     {
                         // if there is room to dodge to the left
                         if (gameObject.transform.position.x - _dodgeDistance >= _xRespawnMin)
                         {
                             StartCoroutine(Dodge(Vector3.left));
-                            return;
                         }
                         else
                         {
                             StartCoroutine(Dodge(Vector3.right));
-                            return;
                         }
                     }
                 }
@@ -106,15 +102,14 @@ public class DodgeEnemyBehavior : EnemyBehavior
                     {
                         _speed = _chargingSpeed;
                     }
-                    return;
                 }
             }
         }
         else
         {
-            if (_speed != _startingSpeed)
+            if (_speed != _defaultSpeed)
             {
-                _speed = _startingSpeed;
+                _speed = _defaultSpeed;
             }
         }
     }
@@ -137,10 +132,10 @@ public class DodgeEnemyBehavior : EnemyBehavior
 
         yield return new WaitForSeconds(_dodgeAdditionalCooldown);
 
-        _speed = _startingSpeed;
+        _speed = _defaultSpeed;
         _isDodging = false;
     }
-
+    
     private void OnDrawGizmos()
     {
         Gizmos.matrix = gameObject.transform.localToWorldMatrix;
