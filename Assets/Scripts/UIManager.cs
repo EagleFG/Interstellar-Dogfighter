@@ -23,10 +23,16 @@ public class UIManager : MonoBehaviour
     private TextMeshProUGUI _ammoCountUI;
 
     [SerializeField]
+    private Slider _bossHealthSlider;
+
+    [SerializeField]
     private TextMeshProUGUI _waveCounter;
 
     [SerializeField]
     private GameObject _gameOverText;
+
+    [SerializeField]
+    private GameObject _victoryText;
 
     private void Start()
     {
@@ -76,13 +82,45 @@ public class UIManager : MonoBehaviour
         _ammoCountUI.text = ammoCount.ToString("D2") + "/" + maxAmmo.ToString();
     }
 
+    public void EnableBossHealthSlider(int bossMaxHealth)
+    {
+        _bossHealthSlider.maxValue = bossMaxHealth;
+        _bossHealthSlider.gameObject.SetActive(true);
+    }
+
+    public void UpdateBossHealthSlider(int bossHealth)
+    {
+        _bossHealthSlider.value = bossHealth;
+    }
+
+    public void DisableBossHealthSlider()
+    {
+        _bossHealthSlider.gameObject.SetActive(false);
+    }
+
     public void UpdateWaveCounterUI(int waveNumber)
     {
-        _waveCounter.text = "Wave: " + waveNumber.ToString("D2");
+        if (waveNumber < 10)
+        {
+            _waveCounter.text = "Wave: " + waveNumber.ToString("D2");
+        }
+        else if (waveNumber == 10)
+        {
+            _waveCounter.text = "BOSS";
+        }
+        else if (waveNumber == 11)
+        {
+            _waveCounter.text = "No Enemies";
+        }
     }
 
     public void EnableGameOverUI()
     {
         _gameOverText.SetActive(true);
+    }
+
+    public void EnableVictoryUI()
+    {
+        _victoryText.SetActive(true);
     }
 }

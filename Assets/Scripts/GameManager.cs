@@ -3,9 +3,12 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField]
     private int _currentWave = 0;
 
     private bool _isGameOver = false;
+
+    private bool _isVictory = false;
 
     private void Start()
     {
@@ -14,9 +17,14 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R) && _isGameOver == true)
+        if (Input.GetKeyDown(KeyCode.R) && (_isGameOver == true || _isVictory == true))
         {
             SceneManager.LoadScene(1);
+        }
+
+        if (Input.GetKeyDown(KeyCode.M) && (_isGameOver == true || _isVictory == true))
+        {
+            SceneManager.LoadScene(0);
         }
     }
 
@@ -38,5 +46,15 @@ public class GameManager : MonoBehaviour
     public void SetGameOverState(bool newGameOverState)
     {
         _isGameOver = newGameOverState;
+    }
+
+    public bool GetVictoryState()
+    {
+        return _isVictory;
+    }
+
+    public void SetVictoryState(bool newVictoryState)
+    {
+        _isVictory = newVictoryState;
     }
 }

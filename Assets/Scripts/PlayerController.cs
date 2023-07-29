@@ -94,7 +94,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private int _maxAmmoCount = 15;
 
-    private int _ammoCount;
+    public int _ammoCount;
 
     [SerializeField]
     private Transform _pickupParent;
@@ -241,6 +241,11 @@ public class PlayerController : MonoBehaviour
         }
 
         transform.position = new Vector3(transform.position.x, Mathf.Clamp(transform.position.y, _lowerLimit, _upperLimit), 0f);
+    }
+
+    public int GetAmmoCount()
+    {
+        return _ammoCount;
     }
 
     void FireWeapon()
@@ -405,6 +410,30 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(ShakeCamera());
     }
 
+    public void StunPlayer()
+    {
+        _canAct = false;
+    }
+
+    public void StunPlayer(float stunDuration)
+    {
+        StartCoroutine(StunPlayerForDuration(stunDuration));
+    }
+
+    public void UnstunPlayer()
+    {
+        _canAct = true;
+    }
+
+    IEnumerator StunPlayerForDuration(float stunDuration)
+    {
+        StunPlayer();
+
+        yield return new WaitForSeconds(stunDuration);
+
+        UnstunPlayer();
+    }
+
     IEnumerator ShakeCamera()
     {
         float startTime = Time.time;
@@ -483,7 +512,7 @@ public class PlayerController : MonoBehaviour
     public void TriggerGameOver()
     {
         _gameManager.SetGameOverState(true);
-        _canAct = false;
+        StunPlayer();
         _collider.enabled = false;
         _disableOnDeathObject.SetActive(false);
         _spawnManager.DisableSpawning();

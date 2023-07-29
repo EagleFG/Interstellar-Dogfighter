@@ -4,6 +4,9 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField]
+    private PlayerController _player;
+
+    [SerializeField]
     private GameManager _gameManager;
 
     [SerializeField]
@@ -17,6 +20,9 @@ public class SpawnManager : MonoBehaviour
 
     [SerializeField] [Range(0, 1)]
     private float _commonEnemySpawnPercentage;
+
+    [SerializeField]
+    private GameObject _bossEnemy;
 
     [SerializeField]
     private Transform _enemyParent;
@@ -73,8 +79,20 @@ public class SpawnManager : MonoBehaviour
         Instantiate(spawnPool[Random.Range(0, spawnPool.Length)], new Vector3(0f, _spawnHeight, 0f), Quaternion.identity, _enemyParent);
     }
 
+    void SpawnBoss()
+    {
+        Instantiate(_bossEnemy, Vector3.zero, Quaternion.identity, _enemyParent);
+    }
+
     void SpawnUpgrade()
     {
+        if (_player.GetAmmoCount() == 0)
+        {
+            Instantiate(_commonUpgradePickups[0], new Vector3(Random.Range(_leftLimit, _rightLimit), _spawnHeight, 0f), Quaternion.identity, _upgradeParent);
+
+            return;
+        }
+
         float spawnRoll = Random.Range(0f, 1f);
 
         GameObject[] spawnPool;
@@ -97,14 +115,21 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator SpawnEnemiesThisWave(int currentWave)
     {
-        _enemiesLeftToSpawnThisWave = currentWave * 2;
-
-        while (_canSpawn && _enemiesLeftToSpawnThisWave > 0)
+        if (currentWave < 10)
         {
-            SpawnEnemy();
-            _enemiesLeftToSpawnThisWave--;
+            _enemiesLeftToSpawnThisWave = currentWave * 2;
 
-            yield return new WaitForSeconds(_enemySpawnInterval);
+            while (_canSpawn && _enemiesLeftToSpawnThisWave > 0)
+            {
+                SpawnEnemy();
+                _enemiesLeftToSpawnThisWave--;
+
+                yield return new WaitForSeconds(_enemySpawnInterval);
+            }
+        }
+        else if (currentWave == 10)
+        {
+            SpawnBoss();
         }
     }
 
