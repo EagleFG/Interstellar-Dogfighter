@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class BeamBehavior : MonoBehaviour
@@ -6,10 +7,7 @@ public class BeamBehavior : MonoBehaviour
     private Collider2D _beamHitbox;
 
     [SerializeField]
-    private AudioClip _beamAudioClip;
-
-    [SerializeField]
-    private float _audioVolume = 1f;
+    private AudioSource _beamAudio;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -24,9 +22,15 @@ public class BeamBehavior : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+    }
+
     void PlayBeamAudio()
     {
-        AudioSource.PlayClipAtPoint(_beamAudioClip, GameObject.Find("Audio Listener").transform.position, _audioVolume);
+        _beamAudio.Stop();
+        _beamAudio.Play();
     }
 
     void EnableBeamHitbox()
@@ -41,6 +45,16 @@ public class BeamBehavior : MonoBehaviour
 
     void EndFireBeam()
     {
+        StartCoroutine(WaitToDestroyBeam());
+    }
+
+    IEnumerator WaitToDestroyBeam()
+    {
+        while (_beamAudio.isPlaying)
+        {
+            yield return null;
+        }
+
         Destroy(gameObject);
     }
 }

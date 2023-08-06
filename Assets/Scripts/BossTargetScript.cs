@@ -2,6 +2,12 @@ using UnityEngine;
 
 public class BossTargetScript : MonoBehaviour
 {
+    [SerializeField]
+    private AudioClip _lockedOnAudio;
+
+    [SerializeField]
+    private AudioSource _targetAudio;
+
     private BossGravityBombAbility _gravityBombAbilityScript;
 
     private Transform _playerTransform;
@@ -26,6 +32,10 @@ public class BossTargetScript : MonoBehaviour
     // called in animation event
     private void PlayerLockedOn()
     {
+        _targetAudio.Stop();
+        _targetAudio.clip = _lockedOnAudio;
+        _targetAudio.Play();
+
         _isTrackingPlayer = false;
     }
 

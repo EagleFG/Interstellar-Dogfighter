@@ -18,6 +18,9 @@ public class BossEnemyBehavior : MonoBehaviour
     private int _currentHealth;
 
     [SerializeField]
+    private AudioClip _ramAudio;
+
+    [SerializeField]
     private float _ramKnockbackDuration = .5f, _ramKnockbackDistance = 1;
 
     [SerializeField]
@@ -48,8 +51,13 @@ public class BossEnemyBehavior : MonoBehaviour
     [SerializeField]
     private float _turretLaserFiringInterval = 2f;
 
+    [SerializeField]
+    private AudioSource _laserAudio;
+
     private PlayerController _player;
     private GameManager _gameManager;
+    private SpawnManager _spawnManager;
+    private MusicController _musicController;
     private Transform _projectileParent;
     private UIManager _uiManager;
     private int _pulseCount = 0;
@@ -58,6 +66,8 @@ public class BossEnemyBehavior : MonoBehaviour
     {
         _player = GameObject.Find("Player").GetComponent<PlayerController>();
         _gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        _musicController = GameObject.Find("Music Controller").GetComponent<MusicController>();
+        _spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
         _projectileParent = GameObject.Find("Projectile List").transform;
         _uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
 
@@ -79,6 +89,8 @@ public class BossEnemyBehavior : MonoBehaviour
     IEnumerator PlayBossIntro()
     {
         _player.StunPlayer();
+        _musicController.PlayBossMusic();
+        DestroyAllProjectiles();
 
         Vector3 velocity = Vector3.zero;
 
@@ -94,6 +106,17 @@ public class BossEnemyBehavior : MonoBehaviour
         _player.UnstunPlayer();
 
         EnableBossFight();
+    }
+
+    private void DestroyAllProjectiles()
+    {
+        if (_projectileParent.childCount > 0)
+        {
+            for (int i = 0, l = _projectileParent.childCount; i < l; i++)
+            {
+                Destroy(_projectileParent.GetChild(i).gameObject);
+            }
+        }
     }
 
     private void EnableBossFight()
@@ -152,18 +175,20 @@ public class BossEnemyBehavior : MonoBehaviour
         {
             _player.DamagePlayer(1);
 
+            AudioSource.PlayClipAtPoint(_ramAudio, Camera.main.transform.position, .5f);
+
             StartCoroutine(KnockBackPlayer());
         }
     }
 
     private void Update()
     {
-        if (_canUseDefensiveAbility == true && Time.time > _previousDefensiveAbilityTime + _defensiveAbilityInterval)
+        if (_canUseDefensiveAbility == true && Time.time > _previousDefensiveAbilityTime + _defensiveAbilityInterval && _gameManager.GetGameOverState() == false)
         {
             ActivateDefensiveAbility();
         }
 
-        if (_canUseOffensiveAbility == true && Time.time > _previousOffensiveAbilityTime + _offensiveAbilityInterval)
+        if (_canUseOffensiveAbility == true && Time.time > _previousOffensiveAbilityTime + _offensiveAbilityInterval && _gameManager.GetGameOverState() == false)
         {
             ActivateOffensiveAbility();
         }
@@ -228,6 +253,9 @@ public class BossEnemyBehavior : MonoBehaviour
             {
                 _turrets[Random.Range(0, _turrets.Length)].FireLaser();
 
+                _laserAudio.Stop();
+                _laserAudio.Play();
+
                 timeSinceLastLaserFired = Time.time;
             }
 
@@ -288,20 +316,19 @@ public class BossEnemyBehavior : MonoBehaviour
     {
         DisableBossFight();
 
+        _player.UpdateScore(100);
+
+        _musicController.PlayVictoryMusic();
+        _spawnManager.DisableSpawning();
+
         _gameManager.SetVictoryState(true);
-        
-        if (_projectileParent.childCount > 0)
-        {
-            for (int i = 0, l = _projectileParent.childCount; i < l; i++)
-            {
-                Destroy(_projectileParent.GetChild(i).gameObject);
-            }
-        }
+
+        DestroyAllProjectiles();
 
         _uiManager.EnableVictoryUI();
     }
 
-
+    
 
     /*
     TO DO:
@@ -315,24 +342,28 @@ public class BossEnemyBehavior : MonoBehaviour
         +Take damage from player projectiles
         +Damage and knock back player if rammed into
         +Upon defeat, explode
-        Upon defeat, add points to the score
+        +Upon defeat, add points to the score
         +Upon defeat, end game with victory screen
 
     Boss abilities
         +Intermittent lasers firing
         +Multi-beam attack
         +Gravity bomb that pulls everything in a radius toward itself right before exploding
+            +Pulls player
+            +Pulls upgrades
         +Shield that moves from boss downward, blocking lasers/missiles and pushing the player
         +Pulse that temporarily disables player's shield/movement when boss's health hits certain thresholds
 
     Audio
-        Switch to boss music during intro animation
-        Shield hit when player rams boss
-        Getting hit by player's weapons
+        +Switch to boss music during intro animation
+        +Switch to victory music when defeated
+        +Shield hit when player rams boss
         +Laser firing
-        Multi-beam attack
-        Gravity bomb
-        Releasing shield that moves downward
-        Stun pulse
+        +Multi-beam attack
+        +Gravity bomb
+            +Target aim
+            +Target flash
+            +Bomb persistent
+        +Stun pulse
     */
 }

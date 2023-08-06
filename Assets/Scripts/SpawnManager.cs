@@ -46,11 +46,6 @@ public class SpawnManager : MonoBehaviour
 
     private bool _canSpawn = false;
 
-    private void Start()
-    {
-        StartCoroutine(ContinuouslySpawnUpgrades());
-    }
-
     private void Update()
     {
         if (_enemyParent.childCount == 0 && _enemiesLeftToSpawnThisWave == 0)
@@ -137,21 +132,29 @@ public class SpawnManager : MonoBehaviour
     {
         yield return new WaitForSeconds(Random.Range(_upgradeSpawnIntervalMin, _upgradeSpawnIntervalMax));
 
-        while (_canSpawn)
+        while (_gameManager.GetGameOverState() == false)
         {
-            SpawnUpgrade();
+            if (_canSpawn)
+            {
+                SpawnUpgrade();
 
-            yield return new WaitForSeconds(Random.Range(_upgradeSpawnIntervalMin, _upgradeSpawnIntervalMax));
+                yield return new WaitForSeconds(Random.Range(_upgradeSpawnIntervalMin, _upgradeSpawnIntervalMax));
+            }
+            else
+            {
+                yield return null;
+            }
         }
     }
 
     public void EnableSpawning()
     {
         _canSpawn = true;
+        StartCoroutine(ContinuouslySpawnUpgrades());
     }
 
     public void DisableSpawning()
     {
-        _canSpawn = false;
+        StopAllCoroutines();
     }
 }

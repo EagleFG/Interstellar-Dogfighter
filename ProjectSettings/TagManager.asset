@@ -9,6 +9,7 @@ TagManager:
   - Missile
   - Beam
   - EnemyLaser
+  - Pickup
   layers:
   - Default
   - TransparentFX

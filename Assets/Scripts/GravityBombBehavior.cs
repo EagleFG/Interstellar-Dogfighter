@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GravityBombBehavior : MonoBehaviour
@@ -18,6 +19,8 @@ public class GravityBombBehavior : MonoBehaviour
     [SerializeField]
     GameObject _explosion;
 
+    private List<Transform> _touchedUpgrades;
+
     private bool _isTouchingPlayer = false;
 
     private Transform _playerTransform;
@@ -27,6 +30,8 @@ public class GravityBombBehavior : MonoBehaviour
     private void Awake()
     {
         _gravityBombAbility = GameObject.Find("Gravity Bomb Ability");
+
+        _touchedUpgrades = new List<Transform>();
     }
 
     private void Start()
@@ -42,22 +47,38 @@ public class GravityBombBehavior : MonoBehaviour
 
         if (_isTouchingPlayer && _playerTransform != null)
         {
-            float playerDistanceFromCenter = Vector3.Distance(transform.position, _playerTransform.position);
+            PullTransformToCenter(_playerTransform);
+        }
 
-            if (playerDistanceFromCenter < _maxPullSpeed * Time.deltaTime)
+        if (_touchedUpgrades.Count > 0)
+        {
+            for (int i = 0, l = _touchedUpgrades.Count; i < l; i++)
             {
-                _playerTransform.position = transform.position;
+                if (_touchedUpgrades[i] != null)
+                {
+                    PullTransformToCenter(_touchedUpgrades[i]);
+                }
             }
-            else
-            {
-                float pullFactor = Mathf.InverseLerp(_maxPullDistance, 0, playerDistanceFromCenter);
+        }
+    }
 
-                float pullSpeed = Mathf.Lerp(_minPullSpeed, _maxPullSpeed, pullFactor);
+    private void PullTransformToCenter(Transform transformToPull)
+    {
+        float transformDistanceFromCenter = Vector3.Distance(transform.position, transformToPull.position);
 
-                Vector3 pullVector = (transform.position - _playerTransform.position).normalized * pullSpeed * Time.deltaTime;
+        if (transformDistanceFromCenter < _maxPullSpeed * Time.deltaTime)
+        {
+            transformToPull.position = transform.position;
+        }
+        else
+        {
+            float pullFactor = Mathf.InverseLerp(_maxPullDistance, 0, transformDistanceFromCenter);
 
-                _playerTransform.Translate(pullVector);
-            }
+            float pullSpeed = Mathf.Lerp(_minPullSpeed, _maxPullSpeed, pullFactor);
+
+            Vector3 pullVector = (transform.position - transformToPull.position).normalized * pullSpeed * Time.deltaTime;
+
+            transformToPull.Translate(pullVector);
         }
     }
 
@@ -68,6 +89,11 @@ public class GravityBombBehavior : MonoBehaviour
             _isTouchingPlayer = true;
 
             _playerTransform = other.gameObject.transform;
+        }
+
+        if (other.gameObject.CompareTag("Pickup"))
+        {
+            _touchedUpgrades.Add(other.transform);
         }
     }
 
@@ -93,6 +119,17 @@ public class GravityBombBehavior : MonoBehaviour
             if (_playerTransform.TryGetComponent(out PlayerController player))
             {
                 player.DamagePlayer(3);
+            }
+        }
+
+        if (_touchedUpgrades.Count > 0)
+        {
+            for (int i = 0, l = _touchedUpgrades.Count; i < l; i++)
+            {
+                if (_touchedUpgrades[i] != null)
+                {
+                    Destroy(_touchedUpgrades[i].gameObject);
+                }
             }
         }
 

@@ -15,7 +15,7 @@ public class AsteroidGameStart : MonoBehaviour
     private SpawnManager _spawnManager;
 
     [SerializeField]
-    private AudioSource _gameMusic;
+    private MusicController _gameMusic;
 
     private Vector3 _rotationAxis = new Vector3(0, 0, 1);
 
@@ -38,7 +38,7 @@ public class AsteroidGameStart : MonoBehaviour
         _collider.enabled = false;
         transform.parent = GameObject.Find("Destroyed Enemy List").transform;
         _spawnManager.EnableSpawning();
-        _gameMusic.Play();
+        _gameMusic.PlayBackgroundMusic();
         _explosion.SetActive(true);
     }
 }

@@ -149,6 +149,12 @@ public class PlayerController : MonoBehaviour
 
     private bool _canAct = true;
 
+    private Coroutine _missileCoroutine;
+
+    private Coroutine _tripleShotCoroutine;
+
+    private Coroutine _speedCoroutine;
+
     void Start()
     {
         transform.position = new Vector3(0f, -2f, 0f);
@@ -422,7 +428,10 @@ public class PlayerController : MonoBehaviour
 
     public void UnstunPlayer()
     {
-        _canAct = true;
+        if (_playerHealth > 0)
+        {
+            _canAct = true;
+        }
     }
 
     IEnumerator StunPlayerForDuration(float stunDuration)
@@ -523,7 +532,13 @@ public class PlayerController : MonoBehaviour
     public void EnableMissile()
     {
         RefillAmmo();
-        StartCoroutine(WaitToDisableMissile());
+
+        if (_missileCoroutine != null)
+        {
+            StopCoroutine(_missileCoroutine);
+        }
+        
+        _missileCoroutine = StartCoroutine(WaitToDisableMissile());
     }
 
     IEnumerator WaitToDisableMissile()
@@ -539,7 +554,12 @@ public class PlayerController : MonoBehaviour
 
     public void EnableTripleShot()
     {
-        StartCoroutine(WaitToDisableTripleShot());
+        if (_tripleShotCoroutine != null)
+        {
+            StopCoroutine(_tripleShotCoroutine);
+        }
+
+        _tripleShotCoroutine = StartCoroutine(WaitToDisableTripleShot());
     }
 
     IEnumerator WaitToDisableTripleShot()
@@ -553,7 +573,12 @@ public class PlayerController : MonoBehaviour
 
     public void EnableSpeedUp()
     {
-        StartCoroutine(WaitToDisableSpeedUp());
+        if (_speedCoroutine != null)
+        {
+            StopCoroutine(_speedCoroutine);
+        }
+
+        _speedCoroutine = StartCoroutine(WaitToDisableSpeedUp());
     }
 
     IEnumerator WaitToDisableSpeedUp()

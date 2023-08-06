@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -7941533402091571232}
   - component: {fileID: 5655605257780510036}
   m_Layer: 0
-  m_Name: Beam
+  m_Name: Boss Beam
   m_TagString: Beam
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -61,7 +61,7 @@ Animator:
   m_GameObject: {fileID: 753409188295024672}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 17b3dc91950c63a449a3fc70633afe27, type: 2}
+  m_Controller: {fileID: 9100000, guid: ce60cb7138517b34eab648f45d2c3500, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
