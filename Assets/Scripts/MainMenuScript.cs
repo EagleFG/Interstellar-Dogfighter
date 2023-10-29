@@ -8,8 +8,10 @@ public class MainMenuScript : MonoBehaviour
         Application.targetFrameRate = 60;
     }
 
-    public void LoadScene(int scene)
+    public void SetWaveAndLoadGame(int startingWave)
     {
-        SceneManager.LoadScene(scene);
+        GameManager.startingWave = startingWave;
+
+        SceneManager.LoadScene(1);
     }
 }

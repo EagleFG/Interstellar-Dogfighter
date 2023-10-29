@@ -3,8 +3,9 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField]
-    private int _currentWave = 0;
+    public static int startingWave = 0;
+
+    private int _currentWave;
 
     private bool _isGameOver = false;
 
@@ -13,6 +14,8 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         Application.targetFrameRate = 60;
+
+        _currentWave = startingWave;
     }
 
     private void Update()
